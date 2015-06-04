@@ -9,8 +9,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.rmi.*;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.swing.RowFilter.Entry;
 
 import Broadcast.tEnviarBroadcast;
 import Broadcast.tRecibirMensaje;
@@ -25,7 +28,7 @@ public class Cliente {
 	   
     public static void main(String[] args) {
         new Cliente();
-        
+        HashMap<String, String> users = new HashMap<>();
         Cliente.buscarServidor (ipServidores);
         try {
 			//br = new BufferedReader(new FileReader("vector"));
@@ -33,10 +36,57 @@ public class Cliente {
 			System.out.println("Buscando servidores");
 			while (ipServidores.size()!=0);
 			System.out.println("Se ha encontrado un servidor");
-			
+			Thread.sleep(3000);
 			String opcion = new String ();
 			
 			
+			do{
+				System.out.println("1. Buscar contraseña.");
+				System.out.println("2. Mostrar todos los usuarios.");
+				System.out.println("3. Salir");
+				System.out.print("Opción: ");
+				opcion = br.readLine();
+				switch (opcion) {
+					case "1":
+						System.out.print("Ingrese el usuario: ");
+						String user = br.readLine();
+						
+						for (String ipServidor:ipServidores){
+							objetoRemoto = (Compute)Naming.lookup ("//"+ipServidor+":1500/Compute");
+							Task task = new TaskImp(user);
+							HashMap<String, String> users_re = (HashMap<String, String>) objetoRemoto.execute(task);
+							users.putAll(users_re);
+						}
+						if (users.containsKey(user)){
+							System.out.println("La contraseña es: "+users.get(user));
+						}else{
+							System.out.println("El usuario no está registrado.");
+						}
+						break;
+					
+					case "2":
+						for (String ipServidor:ipServidores){
+							objetoRemoto = (Compute)Naming.lookup ("//"+ipServidor+":1500/Compute");
+							Task task = new TaskImp();
+							HashMap<String, String> users_re = (HashMap<String, String>) objetoRemoto.execute(task);
+							users.putAll(users_re);
+						}
+						System.out.println("Lista de usuarios");
+						Set<String> keys = users.keySet();
+						for (String key:keys){
+							System.out.println(key +" "+users.get(key));
+						}
+						break;
+		
+					case "3":
+						break;
+						
+					default:
+						System.out.println("Opcion inválida.");
+						break;
+				}
+				users.clear();
+		}while (!opcion.equals("3"));
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
