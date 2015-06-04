@@ -1,4 +1,6 @@
 
+//rmiregistry 1500 -J-Djava.rmi.server.codebase=file:/C:/GitHub/ProyectoSDII_RMI/codebase/bin/
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.rmi.*;
